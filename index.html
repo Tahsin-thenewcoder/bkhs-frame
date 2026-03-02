@@ -7,72 +7,80 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Hind Siliguri', sans-serif; background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%); }
-        .glass-panel { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3); }
-        canvas { touch-action: none; cursor: grab; }
-        /* Modal Style */
-        #downloadModal { 
-            display: none; 
-            position: fixed; 
-            inset: 0; 
-            background: rgba(0,0,0,0.95); 
-            z-index: 1000; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center; 
-            padding: 20px; 
-        }
+        body { font-family: 'Hind Siliguri', sans-serif; background: #f0f2f5; color: #1c1e21; }
+        .glass-panel { background: rgba(255, 255, 255, 0.95); border-radius: 24px; box-shadow: 0 12px 40px rgba(0,0,0,0.1); }
+        canvas { touch-action: none; cursor: move; border-radius: 12px; }
+        .instruction-step { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; text-align: left; background: #f8fafc; padding: 10px; border-radius: 12px; border-left: 4px solid #2563eb; }
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-4">
+<body class="min-h-screen flex flex-col items-center justify-center p-4">
 
-    <div id="downloadModal" onclick="closeModal()">
-        <div class="text-center max-w-sm" onclick="event.stopPropagation()">
-            <p class="text-white text-lg mb-4">নিচের ছবির ওপর <span class="text-yellow-400 font-bold underline">চেপে ধরুন (Long Press)</span>, তারপর <span class="text-green-400 font-bold">"Download Image"</span> বা <span class="text-green-400 font-bold">"Save"</span> চাপুন।</p>
-            <div id="imageContainer" class="bg-white p-2 rounded-lg shadow-2xl mb-6">
-                </div>
-            <button onclick="closeModal()" class="w-full bg-red-500 text-white font-bold py-3 rounded-xl shadow-lg">ফিরে যান</button>
-        </div>
+    <div id="browser-notice" class="hidden mb-4 max-w-lg w-full bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded shadow-sm text-sm">
+        ⚠️ আপনি মেসেঞ্জার ব্রাউজার ব্যবহার করছেন। ছবি সেভ করতে সমস্যা হলে উপরে ডানে ৩-ডট (⋮) মেনু থেকে <b>"Open in Chrome"</b> বা <b>"Open in Browser"</b> ক্লিক করুন।
     </div>
 
-    <div class="glass-panel max-w-lg w-full rounded-3xl shadow-2xl p-6 md:p-8 text-center">
-        <h1 class="text-3xl font-bold text-gray-800 mb-2">BKHS Eid Reunion <span class="text-blue-600">2026</span></h1>
-        <p class="text-gray-500 mb-6 text-sm">ছবি সাজিয়ে "সেভ করুন" বাটনে ক্লিক করুন</p>
+    <div class="glass-panel max-w-lg w-full p-6 md:p-8 text-center">
+        <h1 class="text-2xl md:text-3xl font-bold text-blue-700 mb-2 italic">BKHS Eid Reunion 2026</h1>
+        <p class="text-gray-500 mb-6 font-medium">স্মৃতির ফ্রেমে নিজেকে সাজান</p>
 
-        <div class="relative w-full aspect-square bg-gray-100 rounded-2xl overflow-hidden border-2 border-dashed border-gray-300 flex items-center justify-center mb-6">
-            <p id="placeholder-text" class="text-gray-400 font-medium z-10">এখানে ছবি দেখা যাবে</p>
+        <div id="step-guide" class="mb-6">
+            <div class="instruction-step">
+                <span class="bg-blue-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">১</span>
+                <p id="instruction-text" class="text-sm font-semibold text-gray-700">প্রথমে আপনার একটি সুন্দর ছবি আপলোড দিন।</p>
+            </div>
+        </div>
+
+        <div class="relative w-full aspect-square bg-gray-200 rounded-2xl overflow-hidden border-2 border-dashed border-gray-300 flex items-center justify-center mb-6">
+            <p id="placeholder-text" class="text-gray-400 font-medium z-10 px-4 text-center">এখানে আপনার ছবি এবং ফ্রেম দেখা যাবে</p>
             <canvas id="canvas" class="absolute top-0 left-0 w-full h-full hidden z-20"></canvas>
             <input type="file" id="upload" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-30">
         </div>
 
-        <div id="controls" class="hidden mb-6 text-left bg-blue-50 p-4 rounded-xl">
-            <label class="block text-xs font-bold text-gray-600 mb-2 uppercase">🔍 জুম করুন:</label>
-            <input type="range" id="zoom-slider" min="0.1" max="3" step="0.01" value="1" class="w-full accent-blue-600">
-            <p class="text-[10px] text-blue-400 mt-2 text-center italic">ছবিটি আঙ্গুল দিয়ে টেনে পজিশন ঠিক করুন</p>
+        <div id="controls" class="hidden mb-6 animate-pulse-once">
+            <div class="bg-blue-50 p-4 rounded-xl border border-blue-100">
+                <label class="block text-xs font-bold text-blue-700 mb-2 uppercase tracking-wider">🔍 জুম ইন/আউট করুন:</label>
+                <input type="range" id="zoom-slider" min="0.1" max="3" step="0.01" value="1" class="w-full h-2 bg-blue-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
+            </div>
         </div>
 
-        <div class="space-y-3">
-            <button onclick="document.getElementById('upload').click()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl transition-all shadow-lg">
-                📸 ছবি নির্বাচন করুন
+        <div class="space-y-4">
+            <button onclick="document.getElementById('upload').click()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                ছবি আপলোড করুন
             </button>
-            <button id="download-btn" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-4 rounded-xl transition-all shadow-lg hidden">
-                💾 ফ্রেমসহ সেভ করুন
+            
+            <button id="download-btn" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-xl transition-all shadow-lg hidden flex items-center justify-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                </svg>
+                ফ্রেমসহ সেভ করুন
             </button>
         </div>
-        <p class="text-[10px] text-gray-400 mt-6 tracking-widest uppercase">Bohoddar Kata High School</p>
+
+        <div class="mt-8 pt-6 border-t border-gray-100">
+            <p class="text-[12px] font-bold text-gray-500 uppercase tracking-tight">
+                Developed for <br>
+                <span class="text-blue-800">বহদ্দার কাটা উচ্চ বিদ্যালয় প্রাক্তন ছাত্রছাত্রী সংসদ</span>
+            </p>
+        </div>
     </div>
 
     <script>
+        // Check for FB/Messenger Browser
+        const isFB = /FBAN|FBAV|Messenger/i.test(navigator.userAgent);
+        if (isFB) document.getElementById('browser-notice').classList.remove('hidden');
+
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
         const upload = document.getElementById('upload');
         const downloadBtn = document.getElementById('download-btn');
         const zoomSlider = document.getElementById('zoom-slider');
-        const downloadModal = document.getElementById('downloadModal');
-        const imageContainer = document.getElementById('imageContainer');
+        const instructionText = document.getElementById('instruction-text');
 
         const frameImg = new Image();
-        frameImg.src = 'frame.png'; // তোমার ফ্রেম ফাইলের নাম
+        frameImg.src = 'frame.png'; 
         
         let userImg = new Image();
         let imgX = 0, imgY = 0, imgScale = 1;
@@ -88,10 +96,12 @@
                     imgScale = scaleFit;
                     imgX = (1080 - userImg.width * imgScale) / 2;
                     imgY = (1080 - userImg.height * imgScale) / 2;
-                    zoomSlider.min = scaleFit * 0.5;
+                    zoomSlider.min = scaleFit * 0.3;
                     zoomSlider.max = scaleFit * 3;
                     zoomSlider.value = imgScale;
+                    
                     initCanvas();
+                    instructionText.innerText = "আঙুল দিয়ে বা মাউস দিয়ে ছবি টেনে (Drag) সঠিক জায়গায় বসান এবং জুম স্লাইডার দিয়ে সাজিয়ে নিন।";
                 };
                 userImg.src = f.target.result;
             };
@@ -113,7 +123,6 @@
             ctx.drawImage(frameImg, 0, 0, 1080, 1080);
         }
 
-        // Zoom & Drag Logic
         zoomSlider.oninput = () => {
             const oldS = imgScale; imgScale = parseFloat(zoomSlider.value);
             imgX = 540 - (540 - imgX) * (imgScale / oldS);
@@ -135,29 +144,15 @@
         canvas.onmousedown = start; window.onmousemove = move; window.onmouseup = end;
         canvas.ontouchstart = start; canvas.ontouchmove = move; canvas.ontouchend = end;
 
-        // Final High Quality Save Fix for FB
         downloadBtn.onclick = () => {
             canvas.toBlob((blob) => {
                 const url = URL.createObjectURL(blob);
-                const isMobileApp = /FBAN|FBAV|Messenger/i.test(navigator.userAgent);
-
-                if (isMobileApp) {
-                    const finalImg = new Image();
-                    finalImg.src = url;
-                    finalImg.className = "w-full rounded-lg shadow-lg";
-                    imageContainer.innerHTML = ''; 
-                    imageContainer.appendChild(finalImg);
-                    downloadModal.style.display = 'flex';
-                } else {
-                    const a = document.createElement('a');
-                    a.download = 'BKHS_Reunion_Profile.png';
-                    a.href = url;
-                    a.click();
-                }
+                const a = document.createElement('a');
+                a.download = 'BKHS_Eid_Reunion.png';
+                a.href = url;
+                a.click();
             }, 'image/png', 1.0);
         };
-
-        function closeModal() { downloadModal.style.display = 'none'; }
     </script>
 </body>
 </html>

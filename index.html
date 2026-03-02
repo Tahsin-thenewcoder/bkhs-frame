@@ -2,65 +2,51 @@
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>BKHS Eid Reunion - Frame Generator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Hind Siliguri', sans-serif; background: #f0f2f5; color: #1c1e21; }
-        .glass-panel { background: rgba(255, 255, 255, 0.95); border-radius: 24px; box-shadow: 0 12px 40px rgba(0,0,0,0.1); }
+        body { font-family: 'Hind Siliguri', sans-serif; background: #f0f2f5; overflow-x: hidden; }
         canvas { touch-action: none; cursor: move; border-radius: 12px; }
-        .instruction-step { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; text-align: left; background: #f8fafc; padding: 10px; border-radius: 12px; border-left: 4px solid #2563eb; }
+        .instruction-step { border-left: 4px solid #2563eb; background: #f8fafc; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center justify-center p-4">
 
-    <div id="browser-notice" class="hidden mb-4 max-w-lg w-full bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded shadow-sm text-sm">
-        ⚠️ আপনি মেসেঞ্জার ব্রাউজার ব্যবহার করছেন। ছবি সেভ করতে সমস্যা হলে উপরে ডানে ৩-ডট (⋮) মেনু থেকে <b>"Open in Chrome"</b> বা <b>"Open in Browser"</b> ক্লিক করুন।
+    <div id="browser-notice" class="hidden mb-4 max-w-lg w-full bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded shadow-sm text-xs md:text-sm">
+        ⚠️ মেসেঞ্জার ব্রাউজারে সেভ না হলে উপরে ডানে ৩-ডট (⋮) মেনু থেকে <b>"Open in Chrome"</b> করুন।
     </div>
 
-    <div class="glass-panel max-w-lg w-full p-6 md:p-8 text-center">
+    <div class="bg-white max-w-lg w-full p-6 md:p-8 rounded-[2rem] shadow-2xl text-center border border-gray-100">
         <h1 class="text-2xl md:text-3xl font-bold text-blue-700 mb-2 italic">BKHS Eid Reunion 2026</h1>
-        <p class="text-gray-500 mb-6 font-medium">স্মৃতির ফ্রেমে নিজেকে সাজান</p>
-
-        <div id="step-guide" class="mb-6">
-            <div class="instruction-step">
-                <span class="bg-blue-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">১</span>
-                <p id="instruction-text" class="text-sm font-semibold text-gray-700">প্রথমে আপনার একটি সুন্দর ছবি আপলোড দিন।</p>
-            </div>
+        
+        <div class="mb-6 p-4 rounded-xl instruction-step text-left">
+            <p id="instruction-text" class="text-sm font-semibold text-gray-700 leading-relaxed">১. প্রথমে আপনার একটি সুন্দর ছবি আপলোড দিন।</p>
         </div>
 
-        <div class="relative w-full aspect-square bg-gray-200 rounded-2xl overflow-hidden border-2 border-dashed border-gray-300 flex items-center justify-center mb-6">
-            <p id="placeholder-text" class="text-gray-400 font-medium z-10 px-4 text-center">এখানে আপনার ছবি এবং ফ্রেম দেখা যাবে</p>
+        <div class="relative w-full aspect-square bg-gray-100 rounded-2xl overflow-hidden border-2 border-dashed border-gray-300 flex items-center justify-center mb-6 shadow-inner">
+            <p id="placeholder-text" class="text-gray-400 font-medium z-10 px-6">আপনার ছবি এখানে দেখা যাবে</p>
             <canvas id="canvas" class="absolute top-0 left-0 w-full h-full hidden z-20"></canvas>
             <input type="file" id="upload" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-30">
         </div>
 
-        <div id="controls" class="hidden mb-6 animate-pulse-once">
-            <div class="bg-blue-50 p-4 rounded-xl border border-blue-100">
-                <label class="block text-xs font-bold text-blue-700 mb-2 uppercase tracking-wider">🔍 জুম ইন/আউট করুন:</label>
-                <input type="range" id="zoom-slider" min="0.1" max="3" step="0.01" value="1" class="w-full h-2 bg-blue-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
-            </div>
+        <div id="controls" class="hidden mb-6 bg-blue-50 p-4 rounded-xl border border-blue-100">
+            <label class="block text-xs font-bold text-blue-700 mb-2 uppercase tracking-widest text-left">🔍 জুম ইন / আউট</label>
+            <input type="range" id="zoom-slider" min="0.1" max="3" step="0.01" value="1" class="w-full h-2 bg-blue-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
         </div>
 
-        <div class="space-y-4">
-            <button onclick="document.getElementById('upload').click()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-                ছবি আপলোড করুন
+        <div class="space-y-3">
+            <button onclick="document.getElementById('upload').click()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl transition-all shadow-lg flex items-center justify-center gap-2">
+                📸 ছবি আপলোড দিন
             </button>
-            
-            <button id="download-btn" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-xl transition-all shadow-lg hidden flex items-center justify-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
-                </svg>
-                ফ্রেমসহ সেভ করুন
+            <button id="download-btn" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-2xl transition-all shadow-lg hidden flex items-center justify-center gap-2">
+                💾 ফ্রেমসহ সেভ করুন
             </button>
         </div>
 
         <div class="mt-8 pt-6 border-t border-gray-100">
-            <p class="text-[12px] font-bold text-gray-500 uppercase tracking-tight">
+            <p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest leading-tight">
                 Developed for <br>
                 <span class="text-blue-800">বহদ্দার কাটা উচ্চ বিদ্যালয় প্রাক্তন ছাত্রছাত্রী সংসদ</span>
             </p>
@@ -68,7 +54,6 @@
     </div>
 
     <script>
-        // Check for FB/Messenger Browser
         const isFB = /FBAN|FBAV|Messenger/i.test(navigator.userAgent);
         if (isFB) document.getElementById('browser-notice').classList.remove('hidden');
 
@@ -84,7 +69,7 @@
         
         let userImg = new Image();
         let imgX = 0, imgY = 0, imgScale = 1;
-        let isDragging = false, startX, startY;
+        let isDragging = false, lastX, lastY;
 
         upload.addEventListener('change', (e) => {
             const file = e.target.files[0];
@@ -96,53 +81,83 @@
                     imgScale = scaleFit;
                     imgX = (1080 - userImg.width * imgScale) / 2;
                     imgY = (1080 - userImg.height * imgScale) / 2;
-                    zoomSlider.min = scaleFit * 0.3;
-                    zoomSlider.max = scaleFit * 3;
+                    zoomSlider.min = scaleFit * 0.2;
+                    zoomSlider.max = scaleFit * 4;
                     zoomSlider.value = imgScale;
                     
-                    initCanvas();
-                    instructionText.innerText = "আঙুল দিয়ে বা মাউস দিয়ে ছবি টেনে (Drag) সঠিক জায়গায় বসান এবং জুম স্লাইডার দিয়ে সাজিয়ে নিন।";
+                    canvas.width = 1080; canvas.height = 1080;
+                    canvas.classList.remove('hidden');
+                    document.getElementById('placeholder-text').classList.add('hidden');
+                    document.getElementById('controls').classList.remove('hidden');
+                    downloadBtn.classList.remove('hidden');
+                    instructionText.innerHTML = "২. এখন আঙুল বা মাউস দিয়ে ছবিটিকে টেনে (Drag) সঠিক জায়গায় বসান এবং প্রয়োজনে জুম করুন।";
+                    draw();
                 };
                 userImg.src = f.target.result;
             };
             reader.readAsDataURL(file);
         });
 
-        function initCanvas() {
-            canvas.width = 1080; canvas.height = 1080;
-            draw();
-            canvas.classList.remove('hidden');
-            document.getElementById('placeholder-text').classList.add('hidden');
-            document.getElementById('controls').classList.remove('hidden');
-            downloadBtn.classList.remove('hidden');
-        }
-
         function draw() {
             ctx.clearRect(0, 0, 1080, 1080);
-            ctx.drawImage(userImg, imgX, imgY, userImg.width * imgScale, userImg.height * imgScale);
+            if (userImg.src) {
+                ctx.drawImage(userImg, imgX, imgY, userImg.width * imgScale, userImg.height * imgScale);
+            }
             ctx.drawImage(frameImg, 0, 0, 1080, 1080);
         }
 
         zoomSlider.oninput = () => {
-            const oldS = imgScale; imgScale = parseFloat(zoomSlider.value);
+            const oldS = imgScale;
+            imgScale = parseFloat(zoomSlider.value);
+            // Center scaling
             imgX = 540 - (540 - imgX) * (imgScale / oldS);
             imgY = 540 - (540 - imgY) * (imgScale / oldS);
             draw();
         };
 
-        const getPos = (e) => {
-            const r = canvas.getBoundingClientRect();
-            const cx = e.touches ? e.touches[0].clientX : e.clientX;
-            const cy = e.touches ? e.touches[0].clientY : e.clientY;
-            return { x: (cx - r.left) * (1080 / r.width), y: (cy - r.top) * (1080 / r.height) };
-        };
+        // --- Dragging System Fix ---
+        function getPointerPos(e) {
+            const rect = canvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            return {
+                x: (clientX - rect.left) * (1080 / rect.width),
+                y: (clientY - rect.top) * (1080 / rect.height)
+            };
+        }
 
-        const start = (e) => { isDragging = true; const p = getPos(e); startX = p.x - imgX; startY = p.y - imgY; };
-        const move = (e) => { if(!isDragging) return; e.preventDefault(); const p = getPos(e); imgX = p.x - startX; imgY = p.y - startY; draw(); };
-        const end = () => isDragging = false;
+        function handleStart(e) {
+            if (!userImg.src) return;
+            isDragging = true;
+            const pos = getPointerPos(e);
+            lastX = pos.x;
+            lastY = pos.y;
+        }
 
-        canvas.onmousedown = start; window.onmousemove = move; window.onmouseup = end;
-        canvas.ontouchstart = start; canvas.ontouchmove = move; canvas.ontouchend = end;
+        function handleMove(e) {
+            if (!isDragging) return;
+            e.preventDefault();
+            const pos = getPointerPos(e);
+            const dx = pos.x - lastX;
+            const dy = pos.y - lastY;
+            imgX += dx;
+            imgY += dy;
+            lastX = pos.x;
+            lastY = pos.y;
+            draw();
+        }
+
+        function handleEnd() { isDragging = false; }
+
+        // Mouse Events
+        canvas.addEventListener('mousedown', handleStart);
+        window.addEventListener('mousemove', handleMove);
+        window.addEventListener('mouseup', handleEnd);
+
+        // Touch Events
+        canvas.addEventListener('touchstart', handleStart, {passive: false});
+        canvas.addEventListener('touchmove', handleMove, {passive: false});
+        canvas.addEventListener('touchend', handleEnd);
 
         downloadBtn.onclick = () => {
             canvas.toBlob((blob) => {

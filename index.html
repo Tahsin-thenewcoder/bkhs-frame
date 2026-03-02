@@ -7,56 +7,45 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Hind Siliguri', sans-serif;
-            background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
-        }
-        .glass-panel {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-        }
-        /* Prevent scrolling while dragging on canvas */
-        canvas {
-            touch-action: none; 
-            cursor: grab;
-        }
-        canvas:active {
-            cursor: grabbing;
-        }
+        body { font-family: 'Hind Siliguri', sans-serif; background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%); }
+        .glass-panel { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3); }
+        canvas { touch-action: none; cursor: grab; }
+        canvas:active { cursor: grabbing; }
+        /* Modal for FB Browser */
+        #downloadModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 100; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-4">
 
-    <div class="glass-panel max-w-lg w-full rounded-3xl shadow-2xl p-8 text-center">
-        
-        <h1 class="text-3xl font-bold text-gray-800 mb-2">BKHS Eid Reunion <span class="text-blue-600">2026</span></h1>
-        <p class="text-gray-500 mb-6">ছবি আপলোড করে জুম বা টেনে ঠিক করে নাও!</p>
+    <div id="downloadModal">
+        <p class="text-white text-lg mb-4 text-center">নিচের ছবিটির ওপর চেপে ধরুন (Long Press), <br>তারপর <span class="text-yellow-400 font-bold">"Download Image"</span> বা <span class="text-yellow-400 font-bold">"Save"</span> অপশনটি বেছে নিন।</p>
+        <img id="finalImagePreview" class="max-w-full max-h-[70vh] rounded-lg shadow-2xl border-2 border-white">
+        <button onclick="closeModal()" class="mt-6 bg-red-500 text-white px-6 py-2 rounded-full font-bold">বন্ধ করুন</button>
+    </div>
 
-        <div class="relative w-full aspect-square bg-gray-100 rounded-2xl overflow-hidden border-2 border-dashed border-gray-300 flex items-center justify-center mb-6 group transition-all">
-            <p id="placeholder-text" class="text-gray-400 font-medium z-10 pointer-events-none">এখানে ছবি দেখা যাবে</p>
+    <div class="glass-panel max-w-lg w-full rounded-3xl shadow-2xl p-8 text-center">
+        <h1 class="text-3xl font-bold text-gray-800 mb-2">BKHS Eid Reunion <span class="text-blue-600">2026</span></h1>
+        <p class="text-gray-500 mb-6">ছবিটি জুম বা ড্র্যাগ করে ফ্রেমের সাথে সাজান</p>
+
+        <div class="relative w-full aspect-square bg-gray-100 rounded-2xl overflow-hidden border-2 border-dashed border-gray-300 flex items-center justify-center mb-6">
+            <p id="placeholder-text" class="text-gray-400 font-medium z-10">এখানে ছবি দেখা যাবে</p>
             <canvas id="canvas" class="absolute top-0 left-0 w-full h-full hidden z-20"></canvas>
-            
             <input type="file" id="upload" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-30">
         </div>
 
         <div id="controls" class="hidden mb-6 text-left bg-blue-50 p-4 rounded-xl border border-blue-100">
-            <label class="block text-sm font-semibold text-gray-700 mb-2">🔍 ছবি জুম করুন:</label>
-            <input type="range" id="zoom-slider" min="0.1" max="3" step="0.01" value="1" class="w-full accent-blue-600 cursor-pointer">
-            <p class="text-xs text-gray-500 mt-2 text-center">ছবি ঠিকমতো বসাতে ফ্রেমের ওপর আঙুল বা মাউস দিয়ে টেনে সরান (Drag)</p>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">🔍 জুম কন্ট্রোল:</label>
+            <input type="range" id="zoom-slider" min="0.1" max="3" step="0.01" value="1" class="w-full accent-blue-600">
         </div>
 
         <div class="space-y-4">
-            <button id="upload-btn-proxy" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-xl transition-all shadow-lg hover:shadow-blue-500/30">
-                📸 নতুন ছবি নির্বাচন করুন
+            <button id="upload-btn-proxy" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-xl transition-all shadow-lg">
+                📸 ছবি নির্বাচন করুন
             </button>
-            
-            <button id="download-btn" class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-6 rounded-xl transition-all shadow-lg hover:shadow-green-500/30 hidden">
-                ⬇️ ফ্রেমসহ ডাউনলোড করুন
+            <button id="download-btn" class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-6 rounded-xl transition-all shadow-lg hidden">
+                ⬇️ ডাউনলোড / সেভ করুন
             </button>
         </div>
-        
-        <p class="text-xs text-gray-400 mt-6">Developed for Bohoddar Kata High School</p>
     </div>
 
     <script>
@@ -68,11 +57,10 @@
         const placeholderText = document.getElementById('placeholder-text');
         const controls = document.getElementById('controls');
         const zoomSlider = document.getElementById('zoom-slider');
+        const downloadModal = document.getElementById('download-modal');
+        const finalImagePreview = document.getElementById('finalImagePreview');
 
-        // ফ্রেম ইমেজের নাম ও লোকেশন
         const frameSrc = 'frame.png'; 
-        
-        // টপ কোয়ালিটির জন্য ক্যানভাসের সাইজ
         const canvasSize = 1080; 
         canvas.width = canvasSize;
         canvas.height = canvasSize;
@@ -80,140 +68,94 @@
         let frameImage = new Image();
         frameImage.src = frameSrc;
 
-        let userImage = null;
-        let imgX = 0, imgY = 0, imgScale = 1;
-        let isDragging = false;
-        let startX, startY;
+        let userImage = null, imgX = 0, imgY = 0, imgScale = 1;
+        let isDragging = false, startX, startY;
 
         uploadProxyBtn.addEventListener('click', () => upload.click());
 
         upload.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (!file) return;
-
             const reader = new FileReader();
             reader.onload = (event) => {
                 userImage = new Image();
                 userImage.onload = () => {
-                    // Initial Setup: Fit to cover
                     const scaleFit = Math.max(canvas.width / userImage.width, canvas.height / userImage.height);
                     imgScale = scaleFit;
-                    
-                    // Center image initially
                     imgX = (canvas.width / 2) - (userImage.width * imgScale) / 2;
                     imgY = (canvas.height / 2) - (userImage.height * imgScale) / 2;
-
-                    // Set Slider Values
-                    zoomSlider.min = scaleFit * 0.2; // Allow zoom out
-                    zoomSlider.max = scaleFit * 3;   // Allow zoom in
+                    zoomSlider.min = scaleFit * 0.2;
+                    zoomSlider.max = scaleFit * 3;
                     zoomSlider.value = imgScale;
-
-                    // Hide file input so it doesn't block dragging
-                    upload.classList.add('hidden');
-                    
                     drawCanvas();
-                    showControls();
+                    showUI();
                 };
                 userImage.src = event.target.result;
             };
             reader.readAsDataURL(file);
         });
 
-        // ক্যানভাসে ছবি এবং ফ্রেম আঁকার ফাংশন
         function drawCanvas() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // Draw User Image
-            if (userImage) {
-                ctx.drawImage(userImage, imgX, imgY, userImage.width * imgScale, userImage.height * imgScale);
-            }
-            
-            // Draw Frame
-            if (frameImage.complete) {
-                ctx.drawImage(frameImage, 0, 0, canvas.width, canvas.height);
-            } else {
-                frameImage.onload = () => ctx.drawImage(frameImage, 0, 0, canvas.width, canvas.height);
-            }
+            if (userImage) ctx.drawImage(userImage, imgX, imgY, userImage.width * imgScale, userImage.height * imgScale);
+            if (frameImage.complete) ctx.drawImage(frameImage, 0, 0, canvas.width, canvas.height);
         }
 
-        // জুম স্লাইডার ইভেন্ট
         zoomSlider.addEventListener('input', (e) => {
             const oldScale = imgScale;
             imgScale = parseFloat(e.target.value);
-            
-            // জুম করার সময় ছবি যেন সেন্টারে থাকে তার জন্য একটু পজিশন অ্যাডজাস্ট করা
             const scaleRatio = imgScale / oldScale;
-            const centerX = canvas.width / 2;
-            const centerY = canvas.height / 2;
-            
-            imgX = centerX - (centerX - imgX) * scaleRatio;
-            imgY = centerY - (centerY - imgY) * scaleRatio;
-
+            imgX = (canvas.width / 2) - (canvas.width / 2 - imgX) * scaleRatio;
+            imgY = (canvas.height / 2) - (canvas.height / 2 - imgY) * scaleRatio;
             drawCanvas();
         });
 
-        // ড্র্যাগ বা টেনে সরানোর লজিক
+        // Drag Logic
         function getMousePos(e) {
             const rect = canvas.getBoundingClientRect();
-            // মোবাইল এবং ডেস্কটপ দুটোর জন্যই পয়েন্টার পজিশন
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
             const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-            
-            // স্ক্রিন সাইজ এবং আসল ক্যানভাস সাইজের (1080px) রেশিও বের করা
-            const scaleX = canvas.width / rect.width;
-            const scaleY = canvas.height / rect.height;
-            
-            return {
-                x: (clientX - rect.left) * scaleX,
-                y: (clientY - rect.top) * scaleY
-            };
+            return { x: (clientX - rect.left) * (canvas.width / rect.width), y: (clientY - rect.top) * (canvas.height / rect.height) };
         }
+        function startDrag(e) { if (!userImage) return; isDragging = true; const pos = getMousePos(e); startX = pos.x - imgX; startY = pos.y - imgY; }
+        function drag(e) { if (!isDragging) return; e.preventDefault(); const pos = getMousePos(e); imgX = pos.x - startX; imgY = pos.y - startY; drawCanvas(); }
+        function stopDrag() { isDragging = false; }
 
-        function startDrag(e) {
-            if (!userImage) return;
-            isDragging = true;
-            const pos = getMousePos(e);
-            startX = pos.x - imgX;
-            startY = pos.y - imgY;
-        }
-
-        function drag(e) {
-            if (!isDragging) return;
-            e.preventDefault(); // মোবাইলে স্ক্রল বন্ধ করার জন্য
-            const pos = getMousePos(e);
-            imgX = pos.x - startX;
-            imgY = pos.y - startY;
-            drawCanvas();
-        }
-
-        function stopDrag() {
-            isDragging = false;
-        }
-
-        // মাউস ইভেন্ট
         canvas.addEventListener('mousedown', startDrag);
         canvas.addEventListener('mousemove', drag);
-        canvas.addEventListener('mouseup', stopDrag);
-        canvas.addEventListener('mouseleave', stopDrag);
-
-        // টাচ ইভেন্ট (মোবাইলের জন্য)
+        window.addEventListener('mouseup', stopDrag);
         canvas.addEventListener('touchstart', startDrag, {passive: false});
         canvas.addEventListener('touchmove', drag, {passive: false});
         canvas.addEventListener('touchend', stopDrag);
 
-        function showControls() {
+        function showUI() {
             canvas.classList.remove('hidden');
             placeholderText.classList.add('hidden');
             controls.classList.remove('hidden');
             downloadBtn.classList.remove('hidden');
         }
 
+        // Modified Download Logic for FB Browser
         downloadBtn.addEventListener('click', () => {
-            const link = document.createElement('a');
-            link.download = 'BKHS-Reunion-Profile.png';
-            link.href = canvas.toDataURL('image/png', 1.0); // 1.0 means max quality
-            link.click();
+            const dataUrl = canvas.toDataURL('image/png', 1.0);
+            const isFB = /FBAN|FBAV|Messenger/i.test(navigator.userAgent);
+
+            if (isFB) {
+                // Show modal for Facebook/Messenger
+                finalImagePreview.src = dataUrl;
+                document.getElementById('downloadModal').style.display = 'flex';
+            } else {
+                // Normal browser download
+                const link = document.createElement('a');
+                link.download = 'BKHS-Reunion-Profile.png';
+                link.href = dataUrl;
+                link.click();
+            }
         });
+
+        function closeModal() {
+            document.getElementById('downloadModal').style.display = 'none';
+        }
     </script>
 </body>
 </html>
